@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Success Score Optimizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --shopee: #EE4D2D;
+    --shopee-light: #FFF0ED;
+    --bg: #F5F5F5;
+    --card: #FFFFFF;
+    --border: #E8E8E8;
+    --border-soft: #F0F0F0;
+    --text-1: #1A1A1A;
+    --text-2: #6B6B6B;
+    --text-3: #9E9E9E;
+    --green: #00A650;
+    --green-light: #E8F7EF;
+    --amber: #F59E0B;
+    --amber-light: #FEF3C7;
+    --red: #EF4444;
+    --red-light: #FEE2E2;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.07),0 2px 6px rgba(0,0,0,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;min-height:100vh;}
+
+  /* HEADER */
+  .header{background:var(--card);border-bottom:1.5px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+  .logo{width:34px;height:34px;background:var(--shopee);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .logo svg{width:18px;height:18px;fill:#fff;}
+  .h-title{font-size:16px;font-weight:700;letter-spacing:-0.3px;}
+  .h-sub{font-size:11px;color:var(--text-3);font-weight:500;margin-top:1px;}
+  .h-div{width:1px;height:28px;background:var(--border);margin:0 8px;}
+  .filter-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;}
+  .filter-select{appearance:none;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:7px 30px 7px 12px;font-size:13px;font-weight:600;color:var(--text-1);font-family:inherit;cursor:pointer;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6B6B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s;}
+  .filter-select:focus{border-color:var(--shopee);box-shadow:0 0 0 3px rgba(238,77,45,.1);}
+  .cat-badge{background:var(--shopee-light);color:var(--shopee);padding:6px 14px;border-radius:var(--radius-xs);font-size:12px;font-weight:700;border:1.5px solid rgba(238,77,45,.2);}
+
+  /* LAYOUT */
+  .main{padding:24px 32px 48px;max-width:1600px;}
+  .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* CARD */
+  .card{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);}
+  .card-header{padding:17px 20px 13px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;}
+  .card-title{font-size:13px;font-weight:700;}
+  .card-sub{font-size:11px;color:var(--text-3);margin-top:2px;}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:24px;}
+  .kpi-card{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);padding:18px 20px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s,transform .15s;cursor:default;}
+  .kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--shopee);border-radius:3px 3px 0 0;}
+  .kpi-icon{width:32px;height:32px;border-radius:8px;background:var(--shopee-light);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:14px;}
+  .kpi-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .kpi-value{font-size:22px;font-weight:800;letter-spacing:-0.6px;line-height:1.1;}
+  .kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px;}
+
+  /* SELLER BANNER */
+  .seller-banner{background:linear-gradient(135deg,#FFF5F3,#FFF0ED);border:1.5px solid rgba(238,77,45,.2);border-radius:var(--radius);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .seller-avatar{width:40px;height:40px;background:var(--shopee);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;}
+  .seller-name{font-size:14px;font-weight:800;}
+  .seller-meta{font-size:11px;color:var(--text-3);margin-top:2px;}
+  .online-badge{display:flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green);padding:5px 11px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid rgba(0,166,80,.2);}
+  .online-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+  /* 3-COL GRID */
+  .category-grid{display:grid;grid-template-columns:260px 1fr 290px;gap:14px;margin-bottom:24px;}
+
+  /* SCORE RING */
+  .score-card{padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:16px;min-height:440px;}
+  .ring-wrap{position:relative;width:180px;height:180px;}
+  .ring-svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none;stroke:var(--border);stroke-width:14;}
+  .ring-fill{fill:none;stroke:var(--shopee);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+  .ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+  .ring-score{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1;}
+  .ring-max{font-size:13px;color:var(--text-3);font-weight:600;}
+  .ring-label{font-size:13px;font-weight:700;color:var(--text-2);}
+  .ring-status{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+  .ring-dot{width:6px;height:6px;border-radius:50%;}
+  .score-meta{width:100%;display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+  .score-meta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:var(--radius-xs);}
+  .score-meta-k{font-size:11px;color:var(--text-3);font-weight:600;}
+  .score-meta-v{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;}
+
+  /* IMPROVEMENTS */
+  .imp-col-header{display:grid;grid-template-columns:24px 1fr 120px;gap:12px;padding:8px 24px;border-bottom:1px solid var(--border);}
+  .imp-col-h{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;}
+  .imp-body{padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .imp-row{display:grid;grid-template-columns:24px 1fr 120px;align-items:center;gap:12px;padding:10px 12px;border-radius:7px;border:1px solid var(--border-soft);background:#FAFAFA;transition:background .12s,border-color .12s;cursor:default;}
+  .imp-row:hover{background:var(--shopee-light);border-color:rgba(238,77,45,.18);}
+  .imp-num{font-size:11px;font-weight:800;color:var(--shopee);font-family:'DM Mono',monospace;}
+  .imp-name{font-size:12px;font-weight:600;margin-bottom:5px;}
+  .imp-bar-bg{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:3px;}
+  .imp-bar{height:5px;border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .imp-pct{font-size:9px;color:var(--text-3);}
+  .imp-vals{font-size:10px;color:var(--text-3);text-align:right;line-height:1.6;}
+  .imp-target{color:var(--green);font-weight:700;}
+
+  /* ACTIONS */
+  .actions-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px;}
+  .action-item{display:flex;gap:12px;padding:12px 14px;border-radius:8px;border:1px solid var(--border-soft);background:#FAFAFA;transition:background .12s,border-color .12s;cursor:default;}
+  .action-item:hover{background:var(--shopee-light);border-color:rgba(238,77,45,.2);}
+  .action-num{width:22px;height:22px;background:var(--shopee);color:#fff;border-radius:6px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .action-title{font-size:12px;font-weight:700;margin-bottom:3px;}
+  .action-desc{font-size:11px;color:var(--text-2);line-height:1.45;}
+  .action-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-top:5px;}
+
+  /* TABLE */
+  .table-card{overflow:hidden;margin-bottom:24px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#FAFAFA;border-bottom:1.5px solid var(--border);}
+  th{padding:10px 16px;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;text-align:left;}
+  tbody tr{border-bottom:1px solid var(--border-soft);transition:background .1s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#FAFAFA;}
+  td{padding:13px 16px;font-size:12px;vertical-align:middle;}
+  .score-pill{display:inline-flex;align-items:center;justify-content:center;width:38px;height:24px;border-radius:6px;font-size:11px;font-weight:800;font-family:'DM Mono',monospace;}
+  .score-low{background:var(--red-light);color:var(--red);}
+  .score-mid{background:var(--amber-light);color:var(--amber);}
+  .score-ok{background:var(--green-light);color:var(--green);}
+  .priority-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;}
+  .issue-tag{display:inline-block;background:#F3F4F6;color:var(--text-2);font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;}
+
+  /* CHARTS ROW */
+  .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .chart-body{padding:16px 20px 20px;}
+  .chart-legend{display:flex;gap:16px;margin-bottom:14px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-2);}
+  .legend-dot{width:8px;height:8px;border-radius:50%;}
+
+  /* PROJECTED */
+  .proj-body{padding:24px;}
+  .proj-uplift-badge{background:var(--green-light);color:var(--green);padding:6px 14px;border-radius:8px;font-size:13px;font-weight:800;border:1px solid rgba(0,166,80,.2);}
+  .proj-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .proj-row-label{font-size:12px;font-weight:600;color:var(--text-2);width:60px;text-align:right;flex-shrink:0;}
+  .proj-bar-track{flex:1;height:28px;background:var(--bg);border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+  .proj-bar-fill{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-size:13px;font-weight:800;transition:width 1.2s cubic-bezier(.4,0,.2,1) .2s;}
+  .proj-score-num{font-size:20px;font-weight:800;width:44px;flex-shrink:0;font-family:'DM Mono',monospace;}
+  .proj-factors-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+  .proj-factor{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 12px;text-align:center;}
+  .proj-factor-val{font-size:16px;font-weight:800;color:var(--green);}
+  .proj-factor-key{font-size:10px;color:var(--text-3);font-weight:600;margin-top:2px;}
+
+  /* FADE */
+  .fade-in{animation:fadeIn .3s ease forwards;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    </div>
+    <div>
+      <div class="h-title">Success Score Optimizer</div>
+      <div class="h-sub">Shopee Seller Intelligence Platform</div>
+    </div>
+    <div class="h-div"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="filter-label">Seller</span>
+      <select class="filter-select" id="sellerSelect" onchange="switchSeller(this.value)">
+        <option value="ellora">Ellora Official Shop</option>
+        <option value="lilystore">Lilystore23</option>
+      </select>
+      <span class="filter-label">Category</span>
+      <div class="cat-badge" id="catBadge">Sandal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:11px;color:var(--text-3);">Last updated: Today, 09:41 AM</span>
+    <span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;"></span>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const DATA = {
+  ellora: {
+    id: "10346424320",
+    name: "Ellora Official Shop",
+    category: "Sandal",
+    kpi: {
+      name: "Ellora Official Shop",
+      rating: "4.87",
+      followers: "369,788",
+      sold: "207",
+      gmv: "Rp 36,225,000",
+      reviews: "107",
+      chatRate: "99.37%",
+      products: "382",
+      joined: "5 years ago",
+    },
+    score: 62,
+    projected: 82,
+    improvements: [
+      { name:"Seller Followers",       current:"369,788",   target:"277,400 – 406,900",   pct:91 },
+      { name:"Seller Rating",          current:"4.87",      target:"4.85 – 4.87",         pct:100},
+      { name:"Review Count",           current:"107",       target:"200+",                pct:54 },
+      { name:"Discount Depth",         current:"56.25%",    target:"up to 73.21%",        pct:77 },
+      { name:"Chat Response Rate",     current:"99.37%",    target:"98.63 – 100%",        pct:99 },
+      { name:"Product Variants",       current:"9",         target:"13 – 50",             pct:24 },
+      { name:"Stock Availability",     current:"1 unit",    target:"from 579",            pct:0  },
+      { name:"Favorites / Wishlist",   current:"570",       target:"356 – 21,560",        pct:3  },
+    ],
+    actions: [
+      { title:"Restock immediately to 579+ units",         desc:"Only 1 unit in stock — critically limiting search rank and conversion. Bulk restock is the single highest-priority action.",              tag:"Critical"     },
+      { title:"Increase product variants to 13+",          desc:"Top sandal sellers carry 13–50 variants (colour, size). Broader options capture more demand from search. Current: 9.",                  tag:"Quick Win"    },
+      { title:"Deepen discounts up to 73%",                desc:"Category data shows aggressive discounting drives ranking. Push from 56% toward 73% on slow-moving SKUs.",                              tag:"High Impact"  },
+      { title:"Run review-generation campaign",            desc:"107 reviews is solid but top performers have 200+. Target post-purchase review nudges on best-selling chunky heels.",                   tag:"Medium Impact"},
+      { title:"Activate product or store vouchers",        desc:"No active vouchers are hurting CTR. Even a small voucher significantly lifts basket conversion and impressions.",                       tag:"Quick Win"    },
+    ],
+    products: [
+      { name:"EG-7682 Chunky Heel – Beige", score:41, issue:"Stock: 1 unit",       fix:"Restock to 200+ units immediately",  priority:"High"   },
+      { name:"EG-7682 Chunky Heel – Black", score:48, issue:"No active voucher",   fix:"Create product-level flash voucher", priority:"High"   },
+      { name:"EG-7682 Chunky Heel – White", score:55, issue:"Only 9 variants",     fix:"Add 4+ size / colour options",       priority:"Medium" },
+      { name:"EG-7682 Chunky Heel – Brown", score:59, issue:"Discount below 73%",  fix:"Increase discount to 68–73%",        priority:"Medium" },
+      { name:"EG-7682 Chunky Heel – Nude",  score:63, issue:"Low favorites (570)", fix:"Feature in homepage flash sale",     priority:"Low"    },
+    ],
+    chartRevenue: [28500000,31200000,26800000,36225000,41000000,36225000],
+    chartSold:    [155,170,142,195,218,207],
+    projFactors:  [
+      {val:"+20",  key:"Score Uplift"   },
+      {val:"+578", key:"Stock Target"   },
+      {val:"+4",   key:"Variants Needed"},
+      {val:"73%",  key:"Discount Target"},
+    ],
+  },
+  lilystore: {
+    id: "23975745460",
+    name: "Lilystore23",
+    category: "Sunscreen",
+    kpi: {
+      name: "Lilystore23",
+      rating: "4.93",
+      followers: "42",
+      sold: "2",
+      gmv: "Rp 67,860",
+      reviews: "1",
+      chatRate: "94%",
+      products: "411",
+      joined: "2 months ago",
+    },
+    score: 28,
+    projected: 65,
+    improvements: [
+      { name:"Seller Followers",       current:"42",        target:"179,200 – 8,157,000", pct:0  },
+      { name:"Favorites / Wishlist",   current:"0",         target:"211 – 27,340",        pct:0  },
+      { name:"Stock Availability",     current:"34 units",  target:"from 2,009",          pct:2  },
+      { name:"Final Price",            current:"Rp 33,930", target:"Rp 22,480 – 27,980", pct:30 },
+      { name:"Image Count",            current:"8 images",  target:"8 – 16",              pct:50 },
+      { name:"Chat Response Rate",     current:"94%",       target:"99 – 100%",           pct:60 },
+      { name:"Discount Depth",         current:"13%",       target:"up to 6.6%",          pct:75 },
+      { name:"Ship from Jabodetabek",  current:"Java",      target:"Jabodetabek",         pct:0  },
+    ],
+    actions: [
+      { title:"Reprice to Rp 22,480 – 27,980",          desc:"Sunscreen buyers are highly price-sensitive. Your Rp 33,930 is above the sweet spot. Lowering price directly improves conversion.",      tag:"Critical"     },
+      { title:"Build follower base aggressively",        desc:"42 followers vs 179,200+ for top sellers. Focus on Shopee Live, affiliate links, and content seeding to grow store credibility.",         tag:"High Impact"  },
+      { title:"Increase stock to 2,009+ units",          desc:"34 units in stock signals a micro-seller. Without bulk inventory, you risk stockout and ranking penalties. Prep before any campaign.",    tag:"Critical"     },
+      { title:"Add product images — target 8–16",        desc:"More high-quality images improve CTR and buyer confidence for skincare decisions. Currently at minimum (8); aim for 12–16.",             tag:"Quick Win"    },
+      { title:"Fulfil from Jabodetabek warehouse",       desc:"Top sunscreen sellers ship from Jabodetabek for speed and search advantages. Consider a 3PL or Shopee warehouse partner in the region.", tag:"Medium Impact"},
+    ],
+    products: [
+      { name:"Azarine Sunscreen SPF 45 PA++++",    score:18, issue:"Zero wishlist saves",        fix:"Run affiliate wishlist campaign",       priority:"High"   },
+      { name:"Azarine Hydrasoothe SPF 35",          score:24, issue:"Price above target range",  fix:"Reprice to Rp 22,480 – 27,980",        priority:"High"   },
+      { name:"Azarine Tone-Up Sunscreen SPF 50",    score:31, issue:"Shipped from non-Jabodeta", fix:"Shift fulfillment to Jabodetabek",      priority:"Medium" },
+      { name:"Azarine Invisible Sunscreen SPF 50+", score:38, issue:"Only 8 product images",    fix:"Add 8 more lifestyle/ingredient photos", priority:"Medium" },
+    ],
+    chartRevenue: [0,0,33930,67860,67860,67860],
+    chartSold:    [0,0,1,2,2,2],
+    projFactors:  [
+      {val:"+37",    key:"Score Uplift" },
+      {val:"↓Price", key:"Rp 22–28K"   },
+      {val:"+1,975", key:"Stock Target" },
+      {val:"+8",     key:"More Images"  },
+    ],
+  }
+};
+
+let activeChart = null;
+
+function statusStyle(score) {
+  if (score >= 70) return { bg:"var(--green-light)", color:"var(--green)",  dot:"var(--green)",  label:"Strong"      };
+  if (score >= 50) return { bg:"var(--amber-light)", color:"var(--amber)",  dot:"var(--amber)",  label:"Developing"  };
+  return                  { bg:"var(--red-light)",   color:"var(--red)",    dot:"var(--red)",    label:"Needs Work"  };
+}
+
+function tagStyle(tag) {
+  if (tag === "Critical")      return "background:#FEE2E2;color:#EF4444;";
+  if (tag === "High Impact")   return "background:#FEF3C7;color:#F59E0B;";
+  if (tag === "Quick Win")     return "background:#E8F7EF;color:#00A650;";
+  return                              "background:#F3F4F6;color:#6B7280;";
+}
+
+function priorityStyle(p) {
+  if (p === "High")   return { bg:"#FEE2E2", color:"#EF4444", sym:"▲" };
+  if (p === "Medium") return { bg:"#FEF3C7", color:"#F59E0B", sym:"●" };
+  return                     { bg:"#E8F7EF", color:"#00A650", sym:"▼" };
+}
+
+function scoreClass(s) {
+  if (s < 40) return "score-low";
+  if (s < 60) return "score-mid";
+  return "score-ok";
+}
+
+// Green = already meeting/near target (pct >= 75), orange = significant gap remaining
+function barColor(pct) {
+  if (pct >= 75) return "#00A650";
+  return "#EE4D2D";
+}
+
+function renderDashboard(id) {
+  const s = DATA[id];
+  const st = statusStyle(s.score);
+  const circ = 2 * Math.PI * 76;
+  const offset = circ * (1 - s.score / 100);
+  const uplift = s.projected - s.score;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun"];
+
+  const impRows = s.improvements.map((imp,i) => `
+    <div class="imp-row" style="animation-delay:${i*40}ms">
+      <div class="imp-num">${String(i+1).padStart(2,"0")}</div>
+      <div>
+        <div class="imp-name">${imp.name}</div>
+        <div class="imp-bar-bg"><div class="imp-bar" data-pct="${imp.pct}" style="width:0%;background:${barColor(imp.pct)}"></div></div>
+        <div class="imp-pct">${imp.pct}% of target reached</div>
+      </div>
+      <div class="imp-vals">${imp.current}<br><span class="imp-target">→ ${imp.target}</span></div>
+    </div>`).join("");
+
+  const actionRows = s.actions.map((a,i) => `
+    <div class="action-item">
+      <div class="action-num">${i+1}</div>
+      <div>
+        <div class="action-title">${a.title}</div>
+        <div class="action-desc">${a.desc}</div>
+        <div class="action-tag" style="${tagStyle(a.tag)}">${a.tag}</div>
+      </div>
+    </div>`).join("");
+
+  const productRows = s.products.map(p => {
+    const pr = priorityStyle(p.priority);
+    return `<tr>
+      <td>
+        <div style="font-weight:600;">${p.name}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;">${s.name}</div>
+      </td>
+      <td><span class="score-pill ${scoreClass(p.score)}">${p.score}</span></td>
+      <td><span class="issue-tag">${p.issue}</span></td>
+      <td style="color:var(--text-2);">${p.fix}</td>
+      <td><span class="priority-badge" style="background:${pr.bg};color:${pr.color};">${pr.sym} ${p.priority}</span></td>
+    </tr>`;}).join("");
+
+  const factorPills = s.projFactors.map(f => `
+    <div class="proj-factor">
+      <div class="proj-factor-val">${f.val}</div>
+      <div class="proj-factor-key">${f.key}</div>
+    </div>`).join("");
+
+  const html = `
+  <div class="fade-in">
+    <!-- BANNER -->
+    <div class="seller-banner">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="seller-avatar">${s.name[0]}</div>
+        <div>
+          <div class="seller-name">${s.name}</div>
+          <div class="seller-meta">Joined ${s.kpi.joined} · ${s.kpi.products} products listed · Seller ID: ${s.id}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border-radius:7px;border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-2);">
+          📂 Category: <strong style="color:var(--text-1);margin-left:2px;">${s.category}</strong>
+        </div>
+        <div class="online-badge"><div class="online-dot"></div>Active Seller</div>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="section-label">Seller Overview</div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-icon">🏪</div><div class="kpi-label">Seller Name</div><div class="kpi-value" style="font-size:15px;letter-spacing:-0.2px;">${s.kpi.name}</div><div class="kpi-sub">${s.category} Category</div></div>
+      <div class="kpi-card"><div class="kpi-icon">⭐</div><div class="kpi-label">Seller Rating</div><div class="kpi-value">${s.kpi.rating}</div><div class="kpi-sub">out of 5.0</div></div>
+      <div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-label">Followers</div><div class="kpi-value">${s.kpi.followers}</div><div class="kpi-sub">store followers</div></div>
+      <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-label">Products Sold</div><div class="kpi-value">${s.kpi.sold}</div><div class="kpi-sub">total units sold</div></div>
+      <div class="kpi-card"><div class="kpi-icon">💰</div><div class="kpi-label">Total Revenue (GMV)</div><div class="kpi-value" style="font-size:16px;letter-spacing:-0.4px;">${s.kpi.gmv}</div><div class="kpi-sub">gross merchandise value</div></div>
+      <div class="kpi-card"><div class="kpi-icon">💬</div><div class="kpi-label">Reviews</div><div class="kpi-value">${s.kpi.reviews}</div><div class="kpi-sub">${s.kpi.chatRate} chat response</div></div>
+    </div>
+
+    <!-- 3-COL -->
+    <div class="section-label">${s.category} Category Analysis</div>
+    <div class="category-grid">
+
+      <!-- SCORE -->
+      <div class="card score-card">
+        <div class="ring-wrap">
+          <svg class="ring-svg" width="180" height="180" viewBox="0 0 180 180">
+            <circle class="ring-bg" cx="90" cy="90" r="76"/>
+            <circle class="ring-fill" id="ringArc" cx="90" cy="90" r="76"
+              stroke-dasharray="${circ.toFixed(2)}"
+              stroke-dashoffset="${circ.toFixed(2)}"
+              stroke="${st.color}"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-score" id="ringNum">0</div>
+            <div class="ring-max">/100</div>
+          </div>
+        </div>
+        <div class="ring-label">Success Score</div>
+        <div class="ring-status" style="background:${st.bg};color:${st.color};border:1px solid ${st.color}33;">
+          <div class="ring-dot" style="background:${st.dot}"></div>${st.label}
+        </div>
+        <div class="score-meta">
+          <div class="score-meta-row"><span class="score-meta-k">Category</span><span class="score-meta-v">${s.category}</span></div>
+          <div class="score-meta-row"><span class="score-meta-k">Chat Rate</span><span class="score-meta-v">${s.kpi.chatRate}</span></div>
+          <div class="score-meta-row"><span class="score-meta-k">Seller Rank</span><span class="score-meta-v">${s.score>=70?"Top 30%":s.score>=50?"Mid Tier":"Lower Tier"}</span></div>
+          <div class="score-meta-row"><span class="score-meta-k">Products</span><span class="score-meta-v">${s.kpi.products} listed</span></div>
+        </div>
+      </div>
+
+      <!-- IMPROVEMENTS -->
+      <div class="card" style="min-height:440px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Top Improvement Opportunities</div>
+            <div class="card-sub">${s.category} category · ranked by impact</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);font-weight:600;background:var(--bg);padding:4px 10px;border-radius:6px;border:1px solid var(--border);">8 features</div>
+        </div>
+        <div class="imp-col-header">
+          <span class="imp-col-h">#</span>
+          <span class="imp-col-h">Feature — Progress to Target</span>
+          <span class="imp-col-h" style="text-align:right;">Current → Target</span>
+        </div>
+        <div class="imp-body">${impRows}</div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="card" style="min-height:440px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Key Actions to Improve</div>
+            <div class="card-sub">Strategic seller recommendations</div>
+          </div>
+        </div>
+        <div class="actions-body">${actionRows}</div>
+      </div>
+    </div>
+
+    <!-- PRODUCT TABLE -->
+    <div class="section-label">Product-Level Diagnostics</div>
+    <div class="card table-card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Low-Scoring ${s.category} Products</div>
+          <div class="card-sub">Products requiring immediate attention · sorted by score</div>
+        </div>
+        <div style="font-size:11px;color:var(--shopee);font-weight:700;cursor:pointer;">View All Products →</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Product</th><th>Current Score</th><th>Main Issue</th><th>Recommended Fix</th><th>Priority</th>
+          </tr></thead>
+          <tbody>${productRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="section-label">Performance Trends</div>
+    <div class="charts-row">
+
+      <!-- REVENUE -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Revenue vs Products Sold</div>
+            <div class="card-sub">Jan – Jun · ${s.category} category</div>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#EE4D2D;"></div>Revenue (GMV)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#94A3B8;"></div>Products Sold</div>
+          </div>
+          <div style="position:relative;height:220px;">
+            <canvas id="revenueChart" role="img" aria-label="Dual line chart showing monthly revenue and products sold Jan to Jun"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECTED -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Projected Success Score After Changes</div>
+            <div class="card-sub">Estimated improvement based on recommendation adoption</div>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+            <div>
+              <div style="font-size:13px;font-weight:700;">Score Forecast</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px;">Full adoption of top 5 recommendations</div>
+            </div>
+            <div class="proj-uplift-badge">+${uplift} pts ↑</div>
+          </div>
+          <div class="proj-row">
+            <div class="proj-row-label">Current</div>
+            <div class="proj-bar-track"><div class="proj-bar-fill" id="barCurrent" style="width:0%;background:#CBD5E1;color:#64748B;">${s.score}</div></div>
+            <div class="proj-score-num" style="color:var(--text-3);">${s.score}</div>
+          </div>
+          <div class="proj-row">
+            <div class="proj-row-label">Projected</div>
+            <div class="proj-bar-track"><div class="proj-bar-fill" id="barProjected" style="width:0%;background:var(--shopee);color:#fff;">${s.projected}</div></div>
+            <div class="proj-score-num" style="color:var(--shopee);">${s.projected}</div>
+          </div>
+          <div style="margin-top:20px;">
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Key Improvement Drivers</div>
+            <div class="proj-factors-grid">${factorPills}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById("main").innerHTML = html;
+  document.getElementById("catBadge").textContent = s.category;
+
+  // Animate ring
+  setTimeout(() => {
+    const arc = document.getElementById("ringArc");
+    if (arc) arc.style.strokeDashoffset = offset.toFixed(2);
+  }, 150);
+
+  // Animate score counter
+  let cur = 0, target = s.score, step = target / (1200 / 16);
+  const el = document.getElementById("ringNum");
+  const timer = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    if (el) el.textContent = Math.round(cur);
+    if (cur >= target) clearInterval(timer);
+  }, 16);
+
+  // Animate imp bars
+  setTimeout(() => {
+    document.querySelectorAll(".imp-bar").forEach(b => {
+      b.style.width = b.dataset.pct + "%";
+    });
+  }, 300);
+
+  // Animate proj bars
+  setTimeout(() => {
+    const bc = document.getElementById("barCurrent");
+    const bp = document.getElementById("barProjected");
+    if (bc) bc.style.width = s.score + "%";
+    if (bp) bp.style.width = s.projected + "%";
+  }, 300);
+
+  // Chart
+  if (activeChart) { activeChart.destroy(); activeChart = null; }
+  setTimeout(() => {
+    const canvas = document.getElementById("revenueChart");
+    if (!canvas || typeof Chart === "undefined") return;
+    activeChart = new Chart(canvas.getContext("2d"), {
+      type: "line",
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: "Revenue (GMV)",
+            data: s.chartRevenue,
+            borderColor: "#EE4D2D",
+            backgroundColor: "rgba(238,77,45,0.06)",
+            borderWidth: 2.5,
+            pointBackgroundColor: "#EE4D2D",
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.4,
+            fill: true,
+            yAxisID: "y",
+          },
+          {
+            label: "Products Sold",
+            data: s.chartSold,
+            borderColor: "#94A3B8",
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            borderDash: [5,3],
+            pointBackgroundColor: "#94A3B8",
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.4,
+            fill: false,
+            yAxisID: "y1",
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode:"index", intersect:false },
+        plugins: {
+          legend: { display:false },
+          tooltip: {
+            backgroundColor:"#1A1A1A", titleFont:{family:"Plus Jakarta Sans",size:11,weight:"700"},
+            bodyFont:{family:"Plus Jakarta Sans",size:11}, padding:10, cornerRadius:8,
+            callbacks: {
+              label: ctx => ctx.datasetIndex === 0
+                ? " Revenue: Rp " + ctx.raw.toLocaleString()
+                : " Sold: " + ctx.raw + " units"
+            }
+          }
+        },
+        scales: {
+          x: { grid:{display:false}, border:{display:false}, ticks:{font:{family:"Plus Jakarta Sans",size:11},color:"#9E9E9E"} },
+          y: {
+            position:"left", grid:{color:"#F0F0F0"}, border:{display:false},
+            ticks:{font:{family:"DM Mono",size:10},color:"#9E9E9E",callback:v=>v>=1000000?"Rp "+(v/1000000).toFixed(1)+"M":"Rp "+(v/1000).toFixed(0)+"K"}
+          },
+          y1: { position:"right", grid:{display:false}, border:{display:false}, ticks:{font:{family:"DM Mono",size:10},color:"#9E9E9E"} }
+        }
+      }
+    });
+  }, 200);
+}
+
+function switchSeller(id) {
+  const el = document.getElementById("main");
+  el.style.opacity = "0";
+  el.style.transform = "translateY(8px)";
+  el.style.transition = "opacity .2s ease, transform .2s ease";
+  setTimeout(() => {
+    renderDashboard(id);
+    el.style.opacity = "1";
+    el.style.transform = "translateY(0)";
+  }, 200);
+}
+
+// Initial render
+renderDashboard("ellora");
+</script>
+</body>
+</html>
