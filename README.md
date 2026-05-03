@@ -21,7 +21,7 @@ Data were obtained from BrightData.
   Jupyter notebooks for data processing, EDA, and machine learning.
   - `01_ProcessData.ipynb` - Data cleaning and preprocessing
   - `02_EDA.ipynb` - Exploratory Data Analysis
-  - `03_MachineLearning.ipynb` - Machine learning models and evaluation
+  - `03_Modelling.ipynb` - Machine learning models and evaluation
 
 - `outputs/`  
   Generated outputs from analysis and models.
