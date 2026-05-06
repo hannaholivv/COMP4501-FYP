@@ -2,6 +2,16 @@
 
 **COMP4501 Final Year Project – The University of Hong Kong (HKU)**
 
+## 🎥 Demo – Dashboard
+https://github.com/user-attachments/assets/f342a5bf-2e2c-4204-95e4-0267fabdfaac
+
+
+---
+## 📊 Project Presentation
+View the slides (PDF):
+[Final Year Project PPT.pdf](https://github.com/user-attachments/files/27423467/FYP.PPT.pdf)
+
+
 ## Objective
 
 The primary objective of this project is to conduct a comprehensive analysis of seller performance drivers across four Shopee Indonesia categories: sandal, wallet, sunscreen, and pan.
